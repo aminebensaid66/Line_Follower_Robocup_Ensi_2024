@@ -15,7 +15,7 @@
 #define avglspeed A5 //vitesse normale avancer left
 #define avgrspeed 50 // vitesse normale avancer right 
 #define button 12
-int i=0;
+int i=1;
 int v=60;
 int max1=0;
 int max2=0,max3=0,max4=0,max5=0;
@@ -84,7 +84,12 @@ void loop()
     case 110:move(2*v,1.5*v); break;
     case 100:move(2*v,2*v); break;
 
-    case 0:move(0,0); break;
+    case 0:
+    if(i==3){
+      move(2*v,2*v);
+      delay(200);
+    }
+     break;
     //left
     case 1100 : move(1.5*v,2*v); break;
     case 11110:move(0.7*v,v); break;
@@ -93,7 +98,26 @@ void loop()
     case 10000:move(0,2.6*v); break;
     case 11000:move(-1.7*v,2*v); break;
     default:move(0,0); break;
-
+    //flags:
+    case 11111:
+    if(i==0){ 
+        move(v,v);
+        if(s!=11111)i=i+1;
+    }
+    else if (i==1 ){
+      move(2*v,-1*v);
+      delay(200);
+      i++;
+      v=50;
+    }
+    else if (i==2 ){
+      move(2.2*v,-1*v);
+      delay(150);
+      i++;
+    }
+    case 10001:
+    move(2*v,v);
+    delay(100);
 
     
     /*case 11111 :
