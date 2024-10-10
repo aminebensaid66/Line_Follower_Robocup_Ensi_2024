@@ -1,9 +1,9 @@
 #include <Arduino.h>
 //motor right(in1 avant et in2 arriere):
-#define in1 2
 #define in2 4
-#define in3 7
+#define in1 2
 #define in4 8
+#define in3 7
 #define enA 5
 #define enB 6
 // enA et enB need PWM pin
@@ -14,10 +14,11 @@
 #define sensor_5 A4   //sensor 5
 #define avglspeed A5 //vitesse normale avancer left
 #define avgrspeed 50 // vitesse normale avancer right 
+#define button 12
 int i=0;
-int avg=60;
-int max1;
-int max2,max3,max4,max5;
+int v=60;
+int max1=0;
+int max2=0,max3=0,max4=0,max5=0;
 void setup(){
   //motors :
   pinMode(in1,OUTPUT);
@@ -33,82 +34,65 @@ void setup(){
   pinMode(sensor_3, INPUT);
   pinMode(sensor_4, INPUT);
   pinMode(sensor_5, INPUT);
+  pinMode(button,INPUT);
+  pinMode(13,OUTPUT);
+  digitalWrite(13,0);
 }
 
 int x=0;
 void move(float,float);
 void afficher_analog_sensors();
 int read_sensors();
+void calibrationblanc();
+void calibrationnoire();
+int h=0;
+int ok=0;
 void loop()
 {
-  
+    unsigned long startTime = 0;
+    
+    int a=digitalRead(button);
+    if(a==1){
+      h++;
+    }
+    if(h==1 &&  ok==0){
+        startTime = millis();
+        digitalWrite(13,1);
+        calibrationblanc();
+        ok=1;
+        digitalWrite(13,0);
+
+    }
+    else if(h==2 && ok==1){
+        digitalWrite(13,1);
+        calibrationnoire();
+        digitalWrite(13,0);
+        ok=0;
+    }
+  else if(h>=3){
   int s=read_sensors();
-  afficher_analog_sensors();
+  Serial.println(s);
+  //delay(500);
   switch(s){
-    case 0:move(0,0);
-        break;
-    case 1:move(avg,0);
-        break;
-    case 10:move(0,0);
-        break;
-    case 11:move(avg,-0.5*avg);
-        break;
-    case 100:move(0,0);
-        break;
-    case 101:move(0,0);
-        break;
-    case 110:move(avg,avg*0.5);
-        break;
-    case 111:move(0,0);
-        break;
-    case 1000:move(0,0);
-        break;
-    case 1001:move(0,0);
-        break;
-    case 1010:move(0,0);
-        break;
-    case 1011:move(0,0);
-        break;
-    case 1100:move(avg*0.5,avg);
-        break;
-    case 1101:move(0,0);
-        break;
-    case 1110:move(avg,avg);
-        break;
-    case 1111:move(0,0);
-        break;
-    case 10000:move(-0.5*avg,1.4*avg);
-        break;
-    case 10001:move(0,0);
-        break;
-    case 10010:move(0,0);
-        break;
-    case 10011:move(0,0);
-        break;
-    case 10100:move(0,0);
-        break;
-    case 10101:move(0,0);
-        break;
-    case 10110:move(0,avg);
-        break;
-    case 10111:move(0,0);
-        break;
-    case 11000:move(-0.5*avg,avg);
-        break;
-    case 11001:move(0,0);
-        break;
-    case 11010:move(0,0);
-        break;
-    case 11011:move(0,0);
-        break;
-    case 11100:move(0,1.4*avg);
-        break;
-    case 11101:move(0,0);
-        break;
-    case 11110:move(0,avg);
-        break;
-    case 11111:move(0,0);
-        break;
+    // right
+    case 1110 : move(2*v,2*v); break;
+    case 1 : move(2.6*v,0); break;
+    case 10: move(2*v,-1.7*v); break;
+    case 11: move(2*v,-1.7*v); break;
+    case 111:move(0.7*v,v);break;
+    case 1111:move(v,0.7*v) ;break;
+    case 110:move(2*v,1.5*v); break;
+    case 100:move(2*v,2*v); break;
+
+    case 0:move(0,0); break;
+    //left
+    case 1100 : move(1.5*v,2*v); break;
+    case 11110:move(0.7*v,v); break;
+    case 11100:move(0.7*v,v); break;
+    case 1000:move(-1.7*v,2*v); break;
+    case 10000:move(0,2.6*v); break;
+    case 11000:move(-1.7*v,2*v); break;
+    default:move(0,0); break;
 
 
     
@@ -172,13 +156,12 @@ void loop()
 
   }*/
 }
-
-}
-void move(float speed_left,float speed_right){
-  digitalWrite(in1,speed_left>0);
-  digitalWrite(in2,speed_left<0);
-  digitalWrite(in3,speed_right>0);
-  digitalWrite(in4,speed_right<0);
+}}
+void move(float speed_right,float speed_left){
+  digitalWrite(in1,speed_left<0);
+  digitalWrite(in2,speed_left>0);
+  digitalWrite(in3,speed_right<0);
+  digitalWrite(in4,speed_right>0);
   analogWrite(enA,abs(speed_left));
   analogWrite(enB,abs(speed_right));
 }
@@ -212,7 +195,6 @@ if(res<250){
 else return 1;
 }
 int read_sensors(){
-
   int s1= calibrer(sensor_1);
   int s2 = calibrer(sensor_2);
   int s3 = calibrer(sensor_3);
@@ -237,8 +219,25 @@ void calibrerdroite(){
 // le robot a sortis de la ligne a droite (ndawrouh isar chwya )
 
 }
+int calibrernoire(int sensor){
+  unsigned long start=millis();
+  int s=1023;
+  while(millis()-start<500){
+    if(analogRead(sensor)<s)
+    s=analogRead(sensor);
+    
+  }
+  return s;
 
-
+}
+int calibrerblanc(int sensor){
+  unsigned long start=millis();
+  int   s=0;
+  while(millis()-start<500){
+    if(analogRead(sensor)>s)
+    s=analogRead(sensor);
+  }
+  return s;}
 void calibrationblanc(){
     int s1,s2,s3,s4,s5;
     s1=calibrerblanc(sensor_1);
@@ -252,6 +251,7 @@ void calibrationblanc(){
     max4=s4;
     max5=s5;
 }
+
 void calibrationnoire(){
     int s1,s2,s3,s4,s5;
     s1=calibrernoire(sensor_1);
@@ -264,27 +264,16 @@ void calibrationnoire(){
     max3=max3+s3;
     max4=max4+s4;
     max5=max5+s5;
-}
-int calibrerblanc(int sensor){
-  unsigned long start=millis();
-  int   s=0;
-  while(millis()-start<1000){
-    if(analogRead(sensor)>s)
-    s=analogRead(sensor);
-  }
-  return s;}
-
-int calibrernoire(int sensor){
-  unsigned long start=millis();
-  int s=1023;
-  while(millis()-start<1000){
-    if(analogRead(sensor)<s)
-    s=analogRead(sensor);
+    max1=max1/2;
+    max2=max2/2;
+    max3=max3/2;
+    max4=max4/2;
+    max5=max5/2;
     
-  }
-  return s;
-
 }
+
+
+
 /*void droite120deg(){
   move(avglspeed*0.3,avgrspeed*0.5);
   //rotation droite 120 degree 
