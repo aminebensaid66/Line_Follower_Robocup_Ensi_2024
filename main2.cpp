@@ -88,20 +88,20 @@ void loop()
     case 111:
     move(0.7*v,v);break;
     case 1111:move(v,0.7*v) ;break;
-    case 110:move(2*v,1.9*v); break;
+    case 110:move(2*v,1.95*v); break;
     case 100:move(2*v,2*v); break;
 
     case 0:
     if(i==3){
-      move(2*v,2*v);
+      move(v,v);
       s=read_sensors();
       if(s!=0)j++;
-
+      
     }
-    if(j==3 || j==4 ){move(v,v);delay(80);move(v,-1*v);delay(400);move(0,0);j++;};
+    if(j==3 || j==4 ){move(v,v);delay(100);move(v,-1*v);delay(400);move(0,0);j++;};
     break;
     //left
-    case 1100 : move(1.9*v,2*v); break;
+    case 1100 : move(1.95*v,2*v); break;
     case 11110:move(0.7*v,v); break;
     case 11100:move(0.7*v,v); break;
     case 1000:move(-1.7*v,2*v); break;
@@ -120,7 +120,7 @@ void loop()
       move(2*v,-1*v);
       delay(100);
       i++;
-      v=50;
+      v=40;
     }
     else if (i==2){
       move(2.2*v,-1*v);
