@@ -15,8 +15,9 @@
 #define avglspeed A5 //vitesse normale avancer left
 #define avgrspeed 50 // vitesse normale avancer right 
 #define button 12
-int i=1;
+int i=0;
 int v=60;
+int j=0;
 int max1=0;
 int max2=0,max3=0,max4=0,max5=0;
 void setup(){
@@ -50,7 +51,6 @@ int ok=0;
 void loop()
 {
     unsigned long startTime = 0;
-    
     int a=digitalRead(button);
     if(a==1){
       h++;
@@ -72,45 +72,57 @@ void loop()
   else if(h>=3){
   int s=read_sensors();
   Serial.println(s);
+  if(s!=11111 && i==0)i++;
   //delay(500);
   switch(s){
     // right
     case 1110 : move(2*v,2*v); break;
-    case 1 : move(2.6*v,0); break;
+    case 1 : 
+    if(i==3){
+      move(3*v,v);
+    }
+    else{
+    move(2.6*v,0); break;}
     case 10: move(2*v,-1.7*v); break;
     case 11: move(2*v,-1.7*v); break;
-    case 111:move(0.7*v,v);break;
+    case 111:
+    move(0.7*v,v);break;
     case 1111:move(v,0.7*v) ;break;
-    case 110:move(2*v,1.5*v); break;
+    case 110:move(2*v,1.9*v); break;
     case 100:move(2*v,2*v); break;
 
     case 0:
     if(i==3){
       move(2*v,2*v);
-      delay(200);
+      s=read_sensors();
+      if(s!=0)j++;
+
     }
-     break;
+    if(j==3 || j==4 ){move(v,v);delay(80);move(v,-1*v);delay(400);move(0,0);j++;};
+    break;
     //left
-    case 1100 : move(1.5*v,2*v); break;
+    case 1100 : move(1.9*v,2*v); break;
     case 11110:move(0.7*v,v); break;
     case 11100:move(0.7*v,v); break;
     case 1000:move(-1.7*v,2*v); break;
     case 10000:move(0,2.6*v); break;
-    case 11000:move(-1.7*v,2*v); break;
+    case 11000:move(1.8*v,2.2*v); break;
     default:move(0,0); break;
     //flags:
+    case 1101:
+    move(v,v);break;
     case 11111:
     if(i==0){ 
         move(v,v);
-        if(s!=11111)i=i+1;
-    }
-    else if (i==1 ){
+        delay(150);
+}
+    else if (i==1){
       move(2*v,-1*v);
-      delay(200);
+      delay(100);
       i++;
       v=50;
     }
-    else if (i==2 ){
+    else if (i==2){
       move(2.2*v,-1*v);
       delay(150);
       i++;
@@ -118,6 +130,7 @@ void loop()
     case 10001:
     move(2*v,v);
     delay(100);
+    if(j==3)move(v,v);break;
 
     
     /*case 11111 :
@@ -191,9 +204,9 @@ void move(float speed_right,float speed_left){
 }
 int inverser(int n){
   int t[5];
-  for(int i=4;i>=0;i--){
-    if(n%10==0)t[i]=1;
-    else t[i]=0;
+  for(int w=4;w>=0;w--){
+    if(n%10==0)t[w]=1;
+    else t[w]=0;
     n=n/10;
   }
   return(t[4]+10*t[3]+100*t[2]+1000*t[1]+10000*t[0]);
