@@ -131,67 +131,6 @@ void loop()
     move(2*v,v);
     delay(100);
     if(j==3)move(v,v);break;
-
-    
-    /*case 11111 :
-    //'Hexagone
-    if(i==0 || i==1){
-      //Chemin De La Sageusse
-      droite120deg();
-      i++;
-    }
-    //sorite de Le Repos des Anciens
-    if(i==4){
-      avantsimple();
-      i++;
-    }
-    //le passage de cercle 
-    if (i==5){
-      droite120deg();
-      i++;
-    }
-    case 0 :
-     //sentier Brisé 
-  //ligne discontinue
-  //00000 
-  avantsimple();i++;
-    case 1111:
-    case 11110 : 
-     //petite tire a eviter
-     if(i==2){
-    avantsimple();
-    i++;}
-    //sortie depassage au cercle 
-    if(i==6){
-      droite90deg();
-      i++;
-    }
-    if(i==0){
-      droite90deg();
-      i++;
-    }
-    case 10001 :
-    // Le Repos des Anciens
-    if(i==3){
-    avantmilieu();
-    i++;
-    }
-    //Le Chemin Sinusoïdal
-    if(i==7){
-      inverser(s);
-      i++;
-    }
-    if(i==8){
-      inverser(s);
-      i++;
-    }
-    ////Escaliers du Défi :
-    case 10000 :retourligneescalierdroite();
-    case 1:retourligneescalierguache();
-     
-
-
-  }*/
 }
 }}
 void move(float speed_right,float speed_left){
@@ -211,11 +150,7 @@ int inverser(int n){
   }
   return(t[4]+10*t[3]+100*t[2]+1000*t[1]+10000*t[0]);
 }
-void avantsimple(){
-move(75,50);
-}
-void droite120deg(){
-}
+
 void afficher_analog_sensors(){
   Serial.print(analogRead(sensor_1));Serial.print("*");
   Serial.print(analogRead(sensor_2));Serial.print("*");
@@ -224,37 +159,49 @@ void afficher_analog_sensors(){
   Serial.print(analogRead(sensor_5));Serial.println("*");
   delay(1000);
 }
-int calibrer(int s){
+int calibrer1(int s){
 int res=analogRead(s);
-if(res<250){
+if(res<max1){
+  return 0;
+}
+else return 1;
+}
+int calibrer2(int s){
+int res=analogRead(s);
+if(res<max2){
+  return 0;
+}
+else return 1;
+}
+int calibrer3(int s){
+int res=analogRead(s);
+if(res<max3){
+  return 0;
+}
+else return 1;
+}
+int calibrer4(int s){
+int res=analogRead(s);
+if(res<max4){
+  return 0;
+}
+else return 1;
+}
+int calibrer5(int s){
+int res=analogRead(s);
+if(res<max5){
   return 0;
 }
 else return 1;
 }
 int read_sensors(){
-  int s1= calibrer(sensor_1);
-  int s2 = calibrer(sensor_2);
-  int s3 = calibrer(sensor_3);
-  int s4 = calibrer(sensor_4);
-  int s5= calibrer(sensor_5);
+  int s1= calibrer1(sensor_1);
+  int s2 = calibrer2(sensor_2);
+  int s3 = calibrer3(sensor_3);
+  int s4 = calibrer4(sensor_4);
+  int s5= calibrer5(sensor_5);
   int res=s5+10*s4+100*s3+1000*s2+10000*s1;
   return(res);
-}
-void droite90deg(){
-
-}
-void avantmilieu(){
-//le robot doit avancer au milieu et attendre 5 seconde sans sortir de la loop 
-
-}
-void calibrergauche(){
-move(avglspeed,avgrspeed-30);
-// le robot a sortis de la ligne a gauche (ndawrouh imin chwya )
-}
-void calibrerdroite(){
-  move(avglspeed-30,avgrspeed);
-// le robot a sortis de la ligne a droite (ndawrouh isar chwya )
-
 }
 int calibrernoire(int sensor){
   unsigned long start=millis();
@@ -308,19 +255,3 @@ void calibrationnoire(){
     max5=max5/2;
     
 }
-
-
-
-/*void droite120deg(){
-  move(avglspeed*0.3,avgrspeed*0.5);
-  //rotation droite 120 degree 
-}
-void droite90deg(){
-  move(avglspeed*-0.25,avgrspeed*0.5);
-}
-void retourligneescalierguache(){
-
-}
-void retourligneescalierdroite(){
-
-}*/
