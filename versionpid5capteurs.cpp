@@ -18,6 +18,7 @@
 int i=1;
 int v=80;
 int j=0;
+int delaypid=0;
 int max1=0;
 int max2=0,max3=0,max4=0,max5=0;
 void setup(){
@@ -39,7 +40,7 @@ void setup(){
   pinMode(13,OUTPUT);
   digitalWrite(13,0);
 }
-float kp=30.0;
+float kp=25.0;
 float ki=0.0;
 float kd=0.0;
 int last_error=0;
@@ -78,6 +79,7 @@ void loop()
   //looooooop:
   else if(h>=3){
   int s=read_sensors();
+  if(s!=11111 && (i==1||i==2))i++;
   if(j==3) i++;
     if(s==11111){
     if(i==0){ 
@@ -87,10 +89,14 @@ void loop()
           if(s!=11111)i++;
       }
     else if(i==1 || i==2){
-      move(2*v,-1*v);
-      delay(50);
-      i++;
+      move(1.5*v,0.75*v);
+      delay(60);
     }
+    /*else if (i==2){
+      move(2*v,-1*v);
+      delay(10);
+    }*/
+    
       
   }
   else if (s==1111){
@@ -98,14 +104,13 @@ void loop()
     delay(300);
     i++;
   }
-  else{
-
+  else {
   int error=calculererror();
   int correction=pid(error);
   move(v-correction,v+correction);
-  delay(10);
-
+  delay(delaypid);
   }
+  
   }
 
 }
@@ -149,13 +154,13 @@ int calculererror(){
     case 11100:
     return 4; //left
     case 11000:
-    return 5; //left
+    return 6; //left
     case 11:
-    return -5;//right
+    return -6;//right
     case 1: //right
-    return -6;
+    return -8;
     case 10000:     
-    return 6;//left
+    return 8;//left
     default:
       return 0;    // No line detected, or lost, treat as no error
   }
