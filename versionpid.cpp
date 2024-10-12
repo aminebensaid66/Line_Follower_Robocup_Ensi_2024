@@ -15,7 +15,7 @@
 #define avglspeed A5 //vitesse normale avancer left
 #define avgrspeed 50 // vitesse normale avancer right 
 #define button 12
-int i=0;
+int i=1;
 int v=80;
 int j=0;
 int max1=0;
@@ -78,49 +78,31 @@ void loop()
   //looooooop:
   else if(h>=3){
   int s=read_sensors();
-  if(i==3)ki=1.5;
   if(j==3) i++;
-  if(s!=11111 && i==0)i++;
-  if (s==1){
-    move(v,-2*v);
-    delay(10);
-  }
-  else if (s==10000){
-    move(-2*v,v);
-    delay(10);
-  }
-   else if(s==11111){
+    if(s==11111){
     if(i==0){ 
           move(v,v);
-          delay(10);
+          delay(100);
+          s=read_sensors();
+          if(s!=11111)i++;
       }
-    else if(i==1){
+    else if(i==1 || i==2){
       move(2*v,-1*v);
-      delay(100);
+      delay(50);
       i++;
-      v=50;
-    }
-    else if (i==2){
-      move(100,-100);
-      delay(100);
-      i++;
-    }
-    else if(i==2){
-      move(2.2*v,-1*v);
-      delay(10);
-      i++;
-    }
-    else if(i==3){
-      move(v,v);
-      delay(10);
     }
       
+  }
+  else if (s==1111){
+    move(2*v,-0.5*v);
+    delay(300);
+    i++;
   }
   else{
 
   int error=calculererror();
   int correction=pid(error);
-  move(v+correction,v-correction);
+  move(v-correction,v+correction);
   delay(10);
 
   }
@@ -148,22 +130,32 @@ int inverser(int n){
   return(t[4]+10*t[3]+100*t[2]+1000*t[1]+10000*t[0]);
 }
 int calculererror(){
-  int s4=calibrer4(sensor_4);
-  int s3=calibrer3(sensor_3);
-  int s2=calibrer2(sensor_2);
+  
   int error=0;
-  int s=s4*100+s3*10+s2;
+  int s=read_sensors();
   switch (s) {
-    case 111:
+    case 1110:
       return 0;    // Perfectly centered
+    case 1100:
+      return 1;    // left
     case 110:
-      return 1;    // Slightly to the left
-    case 011:
-      return -1;   // Slightly to the right
-    case 100:
-      return 3;    // More to the left
-    case 001:
-      return -3;   // More to the right
+      return -1;   // right
+    case 1000:
+      return 3;    // left
+    case 10:
+      return -3;   //  right
+    case 111:
+    return -4; // right
+    case 11100:
+    return 4; //left
+    case 11000:
+    return 5; //left
+    case 11:
+    return -5;//right
+    case 1: //right
+    return -6;
+    case 10000:     
+    return 6;//left
     default:
       return 0;    // No line detected, or lost, treat as no error
   }
